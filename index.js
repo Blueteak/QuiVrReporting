@@ -146,7 +146,7 @@ function AddQueryValue(query, key, json, res)
             {
                 val = new Date(val);
             }
-            else if(!isNaN(val) && parseInt(val) < 66561197987036815)
+            else if(!isNaN(val) && parseInt(val) < 66561197987036815) //Checks number and not Steam User ID
                 val = parseInt(val);
             if(stype == "Greater"){query.greaterThan(key, val);}
             else if(stype == "NotEqual"){query.notEqualTo(key, val);}
