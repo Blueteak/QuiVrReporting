@@ -171,3 +171,8 @@ app.get('/QuiVr', function(req,res)
     "Errors will only be served for server issues, not for queries that don't make sense.\n\n"+
     "#### API Limited to 10 requests every 30 seconds"));
 });
+
+//When running, page Live at: http://localhost:8080
+app.listen(8080, function () {
+    console.log('Example app listening on port 8080!');
+});
