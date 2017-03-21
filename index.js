@@ -149,8 +149,9 @@ function AddQueryValue(query, key, json, res)
             else if(!isNaN(val) && parseInt(val) < 66561197987036815) //Checks number and not Steam User ID
                 val = parseInt(val);
             if(stype == "Greater"){query.greaterThan(key, val);}
-            else if(stype == "NotEqual"){query.notEqualTo(key, val);}
-            else if(stype == "Less"){query.lessThan(key, val);}
+            else if (stype == "Less") { query.lessThan(key, val); }
+            else if (stype == "Matches") { query.matches(key, val); }
+            else if (stype == "NotEqual") { query.notEqualTo(key, val); }
             else {query.equalTo(key, val);}
         }
     } catch (e) {
