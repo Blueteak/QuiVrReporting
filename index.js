@@ -120,9 +120,9 @@ app.get('/QuiVr/:Version/:Class', function (req, res) {
             }
         };
         if (req.query.indexOf("Sort") > -1) {
-            userquery.first(userQueryObject);
-        } else {
             userquery.find(userQueryObject);
+        } else {
+            userquery.first(userQueryObject);
         };
     }
     userquery.limit(10);
