@@ -52,7 +52,7 @@ app.get('/QuiVr/:Version/:Class', function (req, res) {
             }
             else {
                 AddQueryValue(userquery, key, req.query[key], res);
-            }
+            };
         }
         else {
             try {
@@ -61,12 +61,12 @@ app.get('/QuiVr/:Version/:Class', function (req, res) {
                 var stype = j.Test;
                 if (val != undefined) {
                     if (stype == "Ascending") { query.ascending(val); }
-                    else { query.descending(val); }
-                }
+                    else { query.descending(val); };
+                };
             }
             catch (e) {
                 res.status(400).send("Invalid JSON: " + e);
-            }
+            };
         }
     });
     query.limit(20);
@@ -85,7 +85,7 @@ app.get('/QuiVr/:Version/:Class', function (req, res) {
                             var i = 0;
                             while (r.search(regex) >= 0 && i < 50) {
                                 r = r.replace(regex, "");
-                                r = r.replace(",}", "}")
+                                r = r.replace(",}", "}");
                                 i++;
                             }
                         });
@@ -98,7 +98,7 @@ app.get('/QuiVr/:Version/:Class', function (req, res) {
             }
         });
     } else {
-        userquery.first({
+        var userQueryObject = {
             success: function (results) {
                 if (!results || results.length == 0) {
                     res.status(404).send("No Results Found");
@@ -111,15 +111,21 @@ app.get('/QuiVr/:Version/:Class', function (req, res) {
                             r = r.replace(regex, "");
                         });
                     }
-                    r = r.replace(",}", "}")
+                    r = r.replace(",}", "}");
                     res.status(200).json(JSON.parse(r));
-                }
+                };
             },
             error: function (error) {
                 res.status(500).send("Error: " + error.code + " " + error.message);
             }
-        });
+        };
+        if (req.query.indexOf("Sort") > -1) {
+            userquery.first(userQueryObject);
+        } else {
+            userquery.find(userQueryObject);
+        };
     }
+    userquery.limit(10);
 });
 
 function AddQueryValue(query, key, json, res) {
@@ -130,18 +136,17 @@ function AddQueryValue(query, key, json, res) {
         if (val != undefined) {
             if (!isNaN(Date.parse(val)) && isNaN(val)) {
                 val = new Date(val);
-            }
-            else if (!isNaN(val) && parseInt(val) < 66561197987036815) // Checks number and not Steam User ID
+            } else if (!isNaN(val) && parseInt(val) < 66561197987036815) // Checks number and not Steam User ID
                 val = parseInt(val);
             if (stype == "Greater") { query.greaterThan(key, val); }
             else if (stype == "Less") { query.lessThan(key, val); }
             else if (stype == "Matches") { query.matches(key, val); }
             else if (stype == "NotEqual") { query.notEqualTo(key, val); }
             else { query.equalTo(key, val); }
-        }
+        };
     } catch (e) {
         res.status(400).send("Invalid JSON: " + e);
-    }
+    };
 }
 
 app.get('/QuiVr', function (req, res) {
@@ -157,7 +162,7 @@ app.get('/QuiVr', function (req, res) {
 "#### API Limited to 10 requests every 30 seconds"));
 });
 
-// When running, page Live at: http://localhost:8080
+// When running, page lives at: http://localhost:8080
 app.listen(8080, function () {
-    console.log('Example app listening on port 8080!');
+    console.log('Example app listening on port http://localhost:8080...');
 });
