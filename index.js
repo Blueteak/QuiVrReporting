@@ -45,6 +45,9 @@ app.get('/QuiVr/:Version/:Class', function (req, res) {
     var isUser = (cls == "User" || cls == "_User");
     var userquery = new Parse.Query(Parse.User);
     var keys = Object.keys(req.query);
+    console.log(cls);
+    console.log(Class);
+    console.log(query);
     keys.forEach(function (key, index) {
         if (key != "Sort") {
             if (!isUser) {
@@ -56,12 +59,22 @@ app.get('/QuiVr/:Version/:Class', function (req, res) {
         }
         else {
             try {
-                var j = JSON.parse(req.query[key]);
-                var val = j.Value;
-                var stype = j.Test;
-                if (val != undefined) {
-                    if (stype == "Ascending") { query.ascending(val); }
-                    else { query.descending(val); };
+                if (!isUser) {
+                    var j = JSON.parse(req.query[key]);
+                    var val = j.Value;
+                    var stype = j.Test;
+                    if (val != undefined) {
+                        if (stype == "Ascending") { query.ascending(val); }
+                        else { query.descending(val); };
+                    };
+                } else {
+                    var j = JSON.parse(req.query[key]);
+                    var val = j.Value;
+                    var stype = j.Test;
+                    if (val != undefined) {
+                        if (stype == "Ascending") { userquery.ascending(val); }
+                        else { userquery.descending(val); };
+                    };
                 };
             }
             catch (e) {
@@ -70,6 +83,7 @@ app.get('/QuiVr/:Version/:Class', function (req, res) {
         }
     });
     query.limit(20);
+    userquery.limit(10);
     if (!isUser) {
         query.find({
             success: function (results) {
@@ -119,13 +133,12 @@ app.get('/QuiVr/:Version/:Class', function (req, res) {
                 res.status(500).send("Error: " + error.code + " " + error.message);
             }
         };
-        if (req.query.indexOf("Sort") > -1) {
+        if (req.url.indexOf("Sort") > -1) {
             userquery.find(userQueryObject);
         } else {
             userquery.first(userQueryObject);
         };
-    }
-    userquery.limit(10);
+    };
 });
 
 function AddQueryValue(query, key, json, res) {
