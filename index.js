@@ -3,6 +3,7 @@ var request = require("request"); // Required to perform Lyric Request
 var bodyParser = require("body-parser"); // Required to parse AJAX query
 var RateLimit = require('express-rate-limit');
 var Parse = require('parse/node');
+var marked = require('marked');
 
 Parse.initialize("_QUIVR_"); // Replaced with Server App ID
 Parse.serverURL = 'http://QUIVR_URL' // Replaced with Server IP
