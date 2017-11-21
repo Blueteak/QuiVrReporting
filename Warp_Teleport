@@ -1,0 +1,61 @@
+public void TeleportForward(bool sync =true)
+    {
+        /*\
+         *  SET VARIABLES
+        \*/
+        canTP = false;
+        Invoke("ResetCD", 5f); //Can't teleport for next 5 seconds
+        tnum++;
+        float TPDist = TeleportDistance;
+        if (EnemyStream.GetRealPlayerNum() < 2) //If Single Player reduce TP distance
+            TPDist /= 2f;
+        Vector3 startPos = transform.position;
+        navMove n = GetComponent<navMove>();
+        int pid = n.currentPoint; //Current point on path to gate
+        Vector3 curTargPt = transform.position;
+
+        /*\
+         *  GET TELEPORT DESTINATION INFO
+        \*/
+        //If started path and pid is valid
+        if(pid < n.waypoints.Length && pid >= 0)
+            curTargPt = n.waypoints[pid].position;
+        Vector3 tpdir = (curTargPt - transform.position).normalized; //Direction to teleport (toward next point on path)
+        float cdist = Vector3.Distance(transform.position, curTargPt); //Distance to current target point
+        //Change target point until the new target point is either the end (gate) or out of teleporting range
+        while (cdist < TPDist && n.currentPoint < n.waypoints.Length-1)
+        {
+            n.currentPoint++;
+            Vector3 nextPt = n.waypoints[n.currentPoint].position;
+            cdist = Vector3.Distance(transform.position, nextPt);
+            tpdir = (nextPt - transform.position).normalized;
+        }
+        Vector3 target = transform.position + (tpdir * TPDist); //End location of teleport
+        //If we ran out of points (Distance to gate < TeleportDistance) set teleport location to end of path
+        if (cdist < TPDist && n.currentPoint < n.waypoints.Length)
+        {
+            target = n.waypoints[n.currentPoint].position;
+        }
+        //Make sure target point is valid navigation, otherwise get closest point that is on navMesh
+        NavMeshHit hit;
+        if (NavMesh.SamplePosition(target, out hit, 5.0f, NavMesh.AllAreas))
+            target = hit.position;
+
+        /*\
+         *  DO TELEPORT
+        \*/
+        //If valid NavMeshAgent, use Navigation Warp function, otherwise just change position manually
+        if (agent != null && agent.isOnNavMesh)
+            agent.Warp(target);
+        else
+            transform.position = target;
+
+        //Update Navigation target to new waypoint (prevents walking backwards to last waypoint)
+        if(agent.isOnNavMesh && n.currentPoint < n.waypoints.Length)
+            agent.SetDestination(n.waypoints[n.currentPoint].position);
+
+        if (PhotonNetwork.inRoom && sync)
+            GetComponent<NetworkCreature>().TeleporterTrigger(); //Trigger Teleport for other players
+
+        TPSpawn(startPos, transform.position); //Spawn Teleport Particles
+    }
